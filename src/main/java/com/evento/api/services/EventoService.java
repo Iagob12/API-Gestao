@@ -82,7 +82,7 @@ public class EventoService {
 
         return evento.getParticipantes()
                 .stream()
-                .map(ParticipanteDTO::new)
+                .map(ParticipanteDTO::new)  // Converte entidade para DTO
                 .collect(Collectors.toList());
     }
 
