@@ -1,14 +1,13 @@
 package com.evento.api.controllers;
 
-import java.util.List;
-
+import com.evento.api.dto.EventoDTO;
+import com.evento.api.services.EventoService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.evento.api.dto.EventoDTO;
-import com.evento.api.dto.ParticipanteDTO;
-import com.evento.api.services.EventoService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/eventos")
@@ -19,43 +18,63 @@ public class EventoController {
 
     @GetMapping
     public ResponseEntity<List<EventoDTO>> listarEventos() {
-        List<EventoDTO> eventos = eventoService.listarTodos();
-        return ResponseEntity.ok(eventos);
+        return ResponseEntity.ok(eventoService.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventoDTO> buscarPorId(@PathVariable Long id) {
-        EventoDTO evento = eventoService.buscarPorId(id);
-        return ResponseEntity.ok(evento);
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            EventoDTO evento = eventoService.buscarPorId(id);
+            return ResponseEntity.ok(evento);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Evento não encontrado.");
+        }
     }
 
     @PostMapping
-    public ResponseEntity<EventoDTO> criarEvento(@RequestBody EventoDTO dto) {
-        EventoDTO eventoCriado = eventoService.criarEvento(dto);
-        return ResponseEntity.status(201).body(eventoCriado);
+    public ResponseEntity<EventoDTO> criarEvento(@RequestBody EventoDTO eventoDTO) {
+        EventoDTO novoEvento = eventoService.criarEvento(eventoDTO);
+        return ResponseEntity.status(201).body(novoEvento);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventoDTO> atualizarEvento(@PathVariable Long id, @RequestBody EventoDTO dto) {
-        EventoDTO eventoAtualizado = eventoService.atualizarEvento(id, dto);
-        return ResponseEntity.ok(eventoAtualizado);
+    public ResponseEntity<?> atualizarEvento(@PathVariable Long id, @RequestBody EventoDTO eventoDTO) {
+        try {
+            EventoDTO atualizado = eventoService.atualizarEvento(id, eventoDTO);
+            return ResponseEntity.ok(atualizado);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Evento não encontrado.");
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarEvento(@PathVariable Long id) {
-        eventoService.deletarEvento(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deletarEvento(@PathVariable Long id) {
+        try {
+            eventoService.deletarEvento(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Evento não encontrado.");
+        }
     }
 
-    @PostMapping("/{id}/participantes")
-    public ResponseEntity<EventoDTO> adicionarParticipante(@PathVariable Long id, @RequestBody ParticipanteDTO participanteDto) {
-        EventoDTO eventoAtualizado = eventoService.inscreverParticipante(id, participanteDto.getId());
-        return ResponseEntity.ok(eventoAtualizado);
+    @PostMapping("/{eventoId}/participantes/{participanteId}")
+    public ResponseEntity<?> inscreverParticipante(@PathVariable Long eventoId, @PathVariable Long participanteId) {
+        try {
+            EventoDTO eventoAtualizado = eventoService.inscreverParticipante(eventoId, participanteId);
+            return ResponseEntity.ok(eventoAtualizado);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/{id}/participantes")
-    public ResponseEntity<List<ParticipanteDTO>> listarParticipantes(@PathVariable Long id) {
-        List<ParticipanteDTO> participantes = eventoService.listarParticipantes(id);
-        return ResponseEntity.ok(participantes);
+    @GetMapping("/{eventoId}/participantes")
+    public ResponseEntity<?> listarParticipantes(@PathVariable Long eventoId) {
+        try {
+            return ResponseEntity.ok(eventoService.listarParticipantes(eventoId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Evento não encontrado.");
+        }
     }
 }
