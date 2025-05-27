@@ -8,4 +8,6 @@ import com.evento.api.entity.Evento;
 @Repository
 public interface EventoRepository extends JpaRepository<Evento, Long>{
 
+    public Evento getByNome(String nome);
+
 }
