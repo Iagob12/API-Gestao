@@ -23,6 +23,14 @@ public class ParticipanteDTO {
         this.email = participante.getEmail();
     }
 
+    public static Participante toEntity(ParticipanteDTO dto) {
+        Participante participante = new Participante();
+        participante.setId(dto.getId()); // Opcional em criação
+        participante.setNome(dto.getNome());
+        participante.setEmail(dto.getEmail());
+        return participante;
+    }
+
     public Long getId() {
         return id;
     }
@@ -46,5 +54,4 @@ public class ParticipanteDTO {
     public void setEmail(String email) {
         this.email = email;
     }
-
 }

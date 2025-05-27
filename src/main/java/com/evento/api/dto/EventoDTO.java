@@ -25,6 +25,18 @@ public class EventoDTO {
         this.vagas = vagas;
     }
 
+    public static Evento toEntity(EventoDTO dto) {
+        Evento evento = new Evento();
+        evento.setId(dto.getId());
+        evento.setNome(dto.getNome());
+        evento.setDescricao(dto.getDescricao());
+        evento.setData(dto.getData());
+        evento.setLocal(dto.getLocal());
+        evento.setVagas(dto.getVagas());
+        return evento;
+    }
+
+
     public EventoDTO(Evento evento) {
         this.id = evento.getId();
         this.nome = evento.getNome();
